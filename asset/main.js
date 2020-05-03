@@ -14,7 +14,9 @@ let bId = 0
 socket.on("game/status", (data) => {
   console.log("game/status")
   json = JSON.parse(data)
+  console.log(json)
   html = ""
+  footer.innerHTML = json.Score
   if (json.Field == null) {
     contence.innerHTML = html
     return

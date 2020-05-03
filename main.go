@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"topolomemory/models"
-	"strconv"
 
 	socketio "github.com/googollee/go-socket.io"
 )
@@ -19,10 +19,15 @@ type RoomIndex struct {
 }
 type GameStatus struct {
 	Field []models.Card
+	Score string 
+}
+type GameScore struct {
+	ScoreBoard string
 }
 
 func main() {
 	Game := models.NewGame()
+	Score := models.NewScore()
 	Game.Start()
 	Server, err := socketio.NewServer(nil)
 	if err != nil {
@@ -30,12 +35,15 @@ func main() {
 	}
 
 	BroadcastStatus := func() error {
+		board, err := Score.Status()
 		gameStatus := GameStatus{
 			Field: Game.Status(),
+			Score: board,
 		}
 		encodeData, err := json.Marshal(gameStatus)
 
 		if err != nil {
+			fmt.Println("err", err)
 			return err
 		}
 		Server.BroadcastToRoom("/", "all", "game/status", string(encodeData))
@@ -45,6 +53,7 @@ func main() {
 	Server.OnEvent("/", "game/start", func(s socketio.Conn) error {
 		fmt.Println("game/start")
 		Game.Start()
+		Score.Reset()
 		BroadcastStatus()
 		return nil
 	})
@@ -68,26 +77,32 @@ func main() {
 		ids := strings.Split(msg, ",")
 		aId, err := strconv.Atoi(ids[0])
 		if err != nil {
+			fmt.Println("err", err)
 			return err
 		}
 		bId, err := strconv.Atoi(ids[1])
 		if err != nil {
+			fmt.Println("err", err)
 			return err
 		}
 		IsGetCard, err := Game.Hit(aId, bId)
 		if err != nil {
+			fmt.Println("err", err)
 			return err
 		}
 
-		err = BroadcastStatus()
-		if err != nil {
-			return err
-		}
 		if IsGetCard {
+			Score.GetPoint(s.ID())
 			s.Emit("game/win", "")
 		} else {
 			s.Emit("game/lose", "")
 		}
+		err = BroadcastStatus()
+		if err != nil {
+			fmt.Println("err", err)
+			return err
+		}
+
 		return nil
 	})
 
