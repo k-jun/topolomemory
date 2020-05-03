@@ -23,6 +23,8 @@ type game struct {
 }
 
 func (g *game) Start() error {
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
 	g.deck = deck
 	g.field = field
 	return nil
@@ -64,6 +66,8 @@ func (g *game) Hit(a int, b int) (bool, error) {
 }
 
 func (g *game) Status() []Card {
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
 	return g.field
 }
 

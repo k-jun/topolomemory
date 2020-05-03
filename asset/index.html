@@ -13,14 +13,26 @@
         flex-direction: row;
         flex-wrap: wrap-reverse;
       }
-
+      #header {
+        display: flex;
+        flex-direction: row;
+      }
+      #game-start {
+        margin: 10px;
+      }
+      #username {
+        margin: 10px;
+      }
+      #username-input {
+        margin: 10px;
+      }
+      #game-draw {
+        margin: 10px;
+      }
       .card {
         border: 1px black solid;
-        background: #ccc;
+        background: #white;
         margin: 20px;
-      }
-      .red {
-        background: red;
       }
     </style>
 
@@ -32,11 +44,13 @@
     <div id="header">
       <button id="game-start">Game Start</button>
       <button id="game-draw">draw</button>
+      <div id="username"></div>
+      <input id='username-input' placeholder='nickname' />
     </div>
     <h3>contence</h3>
     <div id="contence">
     </div>
-    <h3>footer</h3>
+    <h3>scoreboard</h3>
     <div id="footer">
     </div>
 

@@ -17,3 +17,10 @@ return current room names and room members
 * game/hit
 * game/score
 
+
+## Todo
+* change the footer to scores
+* implement the name change feature
+* add header and show current username
+* show current user list
+

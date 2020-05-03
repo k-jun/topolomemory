@@ -19,7 +19,7 @@ type RoomIndex struct {
 }
 type GameStatus struct {
 	Field []models.Card
-	Score string 
+	Score string
 }
 type GameScore struct {
 	ScoreBoard string
@@ -73,7 +73,6 @@ func main() {
 	})
 	Server.OnEvent("/", "game/hit", func(s socketio.Conn, msg string) error {
 		fmt.Println("game/hit")
-		fmt.Println("msg", msg)
 		ids := strings.Split(msg, ",")
 		aId, err := strconv.Atoi(ids[0])
 		if err != nil {
@@ -106,20 +105,26 @@ func main() {
 		return nil
 	})
 
-	// room/index
-	// room/create
-	// room/join
+	Server.OnEvent("/", "username/change", func(s socketio.Conn, payload string) {
+		fmt.Println("username/change")
+		Score.SetUserName(s.ID(), payload)
+		BroadcastStatus()
+		s.Emit("username/change", Score.GetUserName(s.ID()))
+	})
 
 	Server.OnConnect("/", func(s socketio.Conn) error {
 		fmt.Println("connected:", s.ID())
 		Server.JoinRoom("/", "all", s)
+		Score.SetUserName(s.ID(), "player-"+s.ID())
+		s.Emit("username/change", Score.GetUserName(s.ID()))
 		return nil
-
 	})
 	Server.OnError("/", func(s socketio.Conn, e error) {
+		Score.ClearUserName(s.ID())
 		s.LeaveAll()
 	})
 	Server.OnDisconnect("/", func(s socketio.Conn, reason string) {
+		Score.ClearUserName(s.ID())
 		s.LeaveAll()
 	})
 	go Server.Serve()

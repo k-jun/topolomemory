@@ -7,6 +7,12 @@ const contence = document.getElementById("contence")
 const footer = document.getElementById("footer")
 const gameStartButton = document.getElementById("game-start")
 const gameDrawButton = document.getElementById("game-draw")
+const gameUserName = document.getElementById("username")
+const gameUserNameInput = document.getElementById("username-input")
+  // document.getElementById('name-input').addEventListener('change', function(e) {
+  //   e.preventDefault();
+  //   socket.emit('name-update', e.target.value)
+  // })
 
 let aId = 0
 let bId = 0
@@ -39,6 +45,10 @@ socket.on("game/lose", () => {
   alert("you could not get point...")
 })
 
+socket.on("username/change", (payload) => {
+  gameUserName.innerHTML = payload
+})
+
 function AddEventListenerToCards() {
   cards = document.getElementsByClassName("card")
   for (let i = 0; i < cards.length; i++) {
@@ -67,6 +77,11 @@ function init() {
     e.preventDefault()
     console.log("game/draw")
     socket.emit("game/draw", "")
+  })
+  gameUserNameInput.addEventListener("change", (e) => {
+    e.preventDefault()
+    console.log("username/change", e.target.value)
+    socket.emit("username/change", e.target.value)
   })
 }
 
