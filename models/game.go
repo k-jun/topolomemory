@@ -1,8 +1,8 @@
 package models
 
 import (
-	"sync"
 	"errors"
+	"sync"
 )
 
 type IGame interface {
@@ -44,23 +44,20 @@ func (g *game) Draw() error {
 func (g *game) Hit(a int, b int) (bool, error) {
 	g.mutex.Lock()
 	defer g.mutex.Unlock()
-	aIdx, err := g.find(a)
+	acard, err := g.find(a)
 	if err != nil {
 		return false, err
 	}
 
-	bIdx, err := g.find(b)
+	bcard, err := g.find(b)
 	if err != nil {
 		return false, err
 	}
 
-	acard := g.field[aIdx]
-	bcard := g.field[bIdx]
 	flag := acard.TopologyHoles == bcard.TopologyHoles && acard.TopologyParts == bcard.TopologyParts
 
 	if flag {
-		g.field = append(g.field[:aIdx], g.field[aIdx+1:]...)
-		g.field = append(g.field[:bIdx], g.field[bIdx+1:]...)
+		g.removeTwo(acard, bcard)
 	}
 
 	return flag, nil
@@ -70,14 +67,25 @@ func (g *game) Status() []Card {
 	return g.field
 }
 
-func (g *game) find(id int) (int, error) {
-	for idx, c := range g.field {
+
+func (g *game) removeTwo(a *Card, b *Card) error {
+	nf := []Card{}
+	for _, v := range g.field {
+		if v.Id == a.Id || v.Id == b.Id {
+			continue
+		}
+		nf = append(nf, v)
+	}
+	g.field = nf
+	return nil
+}
+
+func (g *game) find(id int) (*Card, error) {
+	for _, c := range g.field {
 		if c.Id == id {
-			return idx, nil
+			return &c, nil
 		}
 
 	}
-	return -1, errors.New("not found")
+	return nil, errors.New("not found")
 }
-
-
