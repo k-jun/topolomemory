@@ -74,17 +74,17 @@ func main() {
 	Server.OnEvent("/", "game/hit", func(s socketio.Conn, msg string) error {
 		fmt.Println("game/hit")
 		ids := strings.Split(msg, ",")
-		aId, err := strconv.Atoi(ids[0])
+		aID, err := strconv.Atoi(ids[0])
 		if err != nil {
 			fmt.Println("err", err)
 			return err
 		}
-		bId, err := strconv.Atoi(ids[1])
+		bID, err := strconv.Atoi(ids[1])
 		if err != nil {
 			fmt.Println("err", err)
 			return err
 		}
-		IsGetCard, err := Game.Hit(aId, bId)
+		IsGetCard, err := Game.Hit(aID, bID)
 		if err != nil {
 			fmt.Println("err", err)
 			return err
@@ -93,10 +93,11 @@ func main() {
 		if IsGetCard {
 			Score.GetPoint(s.ID())
 			s.Emit("game/win", "")
+			err = BroadcastStatus()
 		} else {
 			s.Emit("game/lose", "")
 		}
-		err = BroadcastStatus()
+
 		if err != nil {
 			fmt.Println("err", err)
 			return err

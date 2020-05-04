@@ -2,7 +2,9 @@ package models
 
 import (
 	"errors"
+	"math/rand"
 	"sync"
+	"time"
 )
 
 type IGame interface {
@@ -27,6 +29,9 @@ func (g *game) Start() error {
 	defer g.mutex.Unlock()
 	g.deck = deck
 	g.field = field
+	g.shuffleDeck()
+	// discard one card
+	g.deck = g.deck[1:len(g.deck)]
 	return nil
 }
 
@@ -67,10 +72,22 @@ func (g *game) Hit(a int, b int) (bool, error) {
 
 func (g *game) Status() []Card {
 	g.mutex.Lock()
+	// g.shuffleField()
 	defer g.mutex.Unlock()
 	return g.field
 }
 
+func (g *game) shuffleDeck() error {
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(g.deck), func(i, j int) { g.deck[i], g.deck[j] = g.deck[j], g.deck[i] })
+	return nil
+}
+
+func (g *game) shuffleField() error {
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(g.field), func(i, j int) { g.field[i], g.field[j] = g.field[j], g.field[i] })
+	return nil
+}
 
 func (g *game) removeTwo(a *Card, b *Card) error {
 	nf := []Card{}
